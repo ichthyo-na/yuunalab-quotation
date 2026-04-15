@@ -65,8 +65,8 @@ Click the **Settings** gear icon to: / 点击 **设置** 齿轮图标可以：
 
 ### Next Up / 近期优化
 
-- [ ] JSON export/import button — easily transfer quotation data between devices / JSON 导出/导入按钮 —— 方便在不同电脑间传输报价数据
 - [ ] Package price field with override — enter a flat rate to override per-day calculation / 打包价格字段 —— 填入即覆盖按天计算的结果
+- [ ] JSON export/import button — easily transfer quotation data between devices / JSON 导出/导入按钮 —— 方便在不同电脑间传输报价数据
 
 ### Future / 未来规划
 

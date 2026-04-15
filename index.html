@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YUUNALAB+ Quotation</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.2/html2pdf.bundle.min.js"></script>
+<style>
+/* ========== RESET & BASE ========== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --accent: #c0392b;
+  --accent-light: #e74c3c;
+  --accent-bg: #fdf2f0;
+  --bg: #fafafa;
+  --card: #fff;
+  --text: #1a1a1a;
+  --text-secondary: #666;
+  --border: #e0e0e0;
+  --border-light: #f0f0f0;
+  --radius: 8px;
+  --shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+html { font-size: 14px; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+input, select, textarea, button { font-family: inherit; font-size: inherit; }
+
+/* ========== TOOLBAR ========== */
+.toolbar {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 24px;
+  display: flex; align-items: center; gap: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+.toolbar-logo { height: 28px; object-fit: contain; }
+.toolbar-brand { font-size: 1.15rem; font-weight: 700; color: var(--accent); letter-spacing: 0.5px; }
+.toolbar-spacer { flex: 1; }
+.toolbar-actions { display: flex; gap: 8px; align-items: center; }
+
+/* ========== BUTTONS ========== */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px; border-radius: var(--radius);
+  border: 1px solid var(--border); background: var(--card);
+  color: var(--text); cursor: pointer; font-size: 0.9rem;
+  font-weight: 500; transition: all 0.15s; white-space: nowrap;
+}
+.btn:hover { background: var(--bg); }
+.btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+.btn-primary:hover { background: var(--accent-light); border-color: var(--accent-light); }
+.btn-sm { padding: 5px 10px; font-size: 0.8rem; }
+.btn-icon { width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 6px; }
+
+/* ========== TABS ========== */
+.tabs { display: flex; gap: 4px; padding: 16px 24px 0; background: var(--card); }
+.tab {
+  padding: 10px 24px; border-radius: 8px 8px 0 0;
+  border: 1px solid transparent; background: transparent;
+  color: var(--text-secondary); cursor: pointer;
+  font-size: 0.95rem; font-weight: 500; transition: all 0.15s;
+}
+.tab:hover { background: var(--accent-bg); color: var(--accent); }
+.tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ========== MAIN ========== */
+.main-content { max-width: 1100px; margin: 0 auto; padding: 20px 24px 60px; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ========== CARDS ========== */
+.card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 20px; overflow: hidden; }
+.card.overflow-visible { overflow: visible; }
+.card-header { padding: 14px 20px; font-weight: 600; font-size: 1rem; color: var(--accent); background: var(--accent-bg); border-bottom: 1px solid var(--border-light); display: flex; align-items: center; justify-content: space-between; }
+
+/* ========== INFO GRID ========== */
+.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+.info-row { display: flex; align-items: center; border-bottom: 1px solid var(--border-light); border-right: 1px solid var(--border-light); }
+.info-row:nth-child(even) { border-right: none; }
+.info-label { width: 160px; padding: 10px 14px; font-weight: 600; font-size: 0.82rem; color: var(--text-secondary); background: var(--bg); flex-shrink: 0; white-space: nowrap; }
+.info-value { flex: 1; padding: 4px 10px; }
+.info-value input, .info-value select { width: 100%; padding: 6px 8px; border: 1px solid transparent; border-radius: 4px; background: transparent; transition: all 0.15s; }
+.info-value input:hover, .info-value select:hover { border-color: var(--border); }
+.info-value input:focus, .info-value select:focus { outline: none; border-color: var(--accent); background: #fff; }
+
+/* ========== FEE TABLE ========== */
+.fee-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.fee-table th { padding: 10px 12px; font-weight: 600; font-size: 0.78rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.3px; background: var(--bg); border-bottom: 1px solid var(--border); text-align: left; }
+.fee-table th.num { text-align: right; }
+.fee-table td { padding: 7px 12px; border-bottom: 1px solid var(--border-light); vertical-align: middle; }
+.fee-table tr:hover { background: var(--accent-bg); }
+.fee-table tr.section-header td { background: var(--bg); font-weight: 700; font-size: 0.92rem; color: var(--accent); text-align: center; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+.fee-table tr.subtotal-row td { font-weight: 700; background: var(--accent-bg); border-top: 1px solid var(--accent); }
+.fee-table .cb-cell { width: 32px; text-align: center; }
+.fee-table .item-cell { width: 200px; }
+.fee-table .desc-cell { /* flex */ }
+.fee-table .price-cell { width: 90px; text-align: right; }
+.fee-table .qty-cell { width: 60px; text-align: right; }
+.fee-table .unit-cell { width: 100px; }
+.fee-table .total-cell { width: 100px; text-align: right; }
+.fee-table .note-cell { width: 120px; }
+.fee-table input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; }
+.fee-table input[type="text"], .fee-table input[type="number"] {
+  width: 100%; padding: 4px 6px; border: 1px solid transparent; border-radius: 4px;
+  background: transparent; text-align: inherit; font-size: 0.85rem;
+}
+.fee-table .item-cell input { font-size: 0.82rem; }
+.fee-table input:hover { border-color: var(--border); }
+.fee-table input:focus { outline: none; border-color: var(--accent); background: #fff; }
+.fee-table .total-val { font-weight: 600; color: var(--accent); font-size: 0.85rem; }
+.fee-table .add-row-btn { color: var(--accent); cursor: pointer; font-size: 0.85rem; background: none; border: 1px dashed var(--border); padding: 4px 12px; border-radius: 4px; transition: all 0.15s; }
+.fee-table .add-row-btn:hover { border-color: var(--accent); background: var(--accent-bg); }
+.del-row-btn { color: #ccc; cursor: pointer; border: none; background: none; font-size: 1.1rem; padding: 2px 6px; border-radius: 4px; transition: color 0.15s; }
+.del-row-btn:hover { color: var(--accent); }
+.row-disabled { opacity: 0.4; }
+.row-disabled input[type="text"], .row-disabled input[type="number"] { pointer-events: none; }
+
+/* ========== TEMPLATE DROPDOWN ========== */
+.tmpl-dropdown { position: relative; display: inline-block; }
+.tmpl-menu {
+  position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: 0 -4px 24px rgba(0,0,0,0.12); z-index: 150; min-width: 260px;
+  max-height: 340px; overflow-y: auto; display: none; padding: 4px 0;
+  margin-bottom: 4px;
+}
+.tmpl-menu.open { display: block; }
+.tmpl-menu-item { padding: 7px 14px; cursor: pointer; font-size: 0.85rem; transition: background 0.1s; display: flex; justify-content: space-between; }
+.tmpl-menu-item:hover { background: var(--accent-bg); }
+.tmpl-menu-item .cn { color: var(--text-secondary); font-size: 0.8rem; }
+.tmpl-menu-cat { padding: 6px 14px; font-size: 0.75rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* ========== SUMMARY ========== */
+.summary-card { background: var(--card); border: 1px solid var(--accent); border-radius: var(--radius); padding: 24px; margin-top: 20px; }
+.summary-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border-light); }
+.summary-row:last-child { border-bottom: none; }
+.summary-row.total { font-size: 1.3rem; font-weight: 700; color: var(--accent); border-top: 1px solid var(--accent); padding-top: 14px; margin-top: 8px; }
+.summary-label { color: var(--text-secondary); }
+.summary-value { font-weight: 600; }
+.summary-input { width: 120px; padding: 5px 8px; border: 1px solid var(--border); border-radius: 4px; text-align: right; }
+.summary-input:focus { outline: none; border-color: var(--accent); }
+
+/* ========== PAYMENT & NOTES ========== */
+.terms-section { padding: 20px; }
+.terms-section h4 { font-size: 0.9rem; color: var(--accent); margin-bottom: 10px; }
+.terms-textarea { width: 100%; min-height: 80px; padding: 10px; border: 1px solid var(--border); border-radius: var(--radius); resize: vertical; font-size: 0.9rem; line-height: 1.6; }
+.terms-textarea:focus { outline: none; border-color: var(--accent); }
+.terms-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+.sig-box { border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; min-height: 100px; }
+.sig-box .sig-label { font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 8px; }
+
+/* ========== LIST TABLE ========== */
+.list-table { width: 100%; border-collapse: collapse; }
+.list-table th { padding: 10px 14px; font-weight: 600; font-size: 0.8rem; color: var(--text-secondary); background: var(--bg); border-bottom: 1px solid var(--border); text-align: left; }
+.list-table td { padding: 8px 14px; border-bottom: 1px solid var(--border-light); }
+.list-table input { width: 100%; padding: 5px 8px; border: 1px solid transparent; border-radius: 4px; background: transparent; }
+.list-table input:hover { border-color: var(--border); }
+.list-table input:focus { outline: none; border-color: var(--accent); background: #fff; }
+
+/* ========== SETTINGS PANEL ========== */
+.settings-panel { position: fixed; right: -400px; top: 0; bottom: 0; width: 380px; background: var(--card); box-shadow: -4px 0 20px rgba(0,0,0,0.1); z-index: 200; transition: right 0.3s ease; overflow-y: auto; padding: 24px; }
+.settings-panel.open { right: 0; }
+.settings-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 199; display: none; }
+.settings-overlay.open { display: block; }
+.settings-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+.settings-group { margin-bottom: 20px; }
+.settings-group label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; }
+.settings-group input[type="text"], .settings-group input[type="color"], .settings-group input[type="file"], .settings-group select { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius); }
+.settings-group input[type="color"] { height: 40px; padding: 4px; cursor: pointer; }
+.logo-preview { margin-top: 8px; max-height: 60px; display: block; }
+
+/* ========== EXPORT MODAL ========== */
+.export-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 300; display: flex; align-items: center; justify-content: center; visibility: hidden; opacity: 0; pointer-events: none; transition: opacity 0.2s, visibility 0.2s; }
+.export-modal-overlay.open { visibility: visible; opacity: 1; pointer-events: auto; }
+.export-modal { background: var(--card); border-radius: var(--radius); padding: 28px; min-width: 340px; box-shadow: 0 12px 40px rgba(0,0,0,0.2); }
+.export-modal h3 { font-size: 1.1rem; margin-bottom: 16px; color: var(--accent); }
+.export-cb { display: flex; align-items: center; gap: 10px; padding: 8px 0; font-size: 0.95rem; cursor: pointer; }
+.export-cb input { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; }
+.export-modal-actions { margin-top: 20px; display: flex; gap: 8px; justify-content: flex-end; }
+
+/* ========== PDF STYLES ========== */
+.pdf-only { display: none; }
+.pdf-rendering .pdf-only { display: block; }
+.pdf-rendering .no-pdf { display: none !important; }
+.pdf-rendering .toolbar, .pdf-rendering .tabs, .pdf-rendering .settings-panel,
+.pdf-rendering .settings-overlay, .pdf-rendering .project-type-bar,
+.pdf-rendering .export-modal-overlay { display: none !important; }
+.pdf-rendering .main-content { padding: 0 10px; max-width: none; }
+.pdf-rendering .tab-panel.pdf-export-show { display: block !important; }
+.pdf-rendering .tab-panel:not(.pdf-export-show) { display: none !important; }
+.pdf-rendering #panel-equipments.pdf-export-show,
+.pdf-rendering #panel-props.pdf-export-show { page-break-before: always; }
+.pdf-rendering .btn { display: none; }
+.pdf-rendering .fee-table input, .pdf-rendering .info-value input,
+.pdf-rendering .info-value select, .pdf-rendering .list-table input,
+.pdf-rendering .terms-textarea { border: none !important; background: none !important; padding: 2px 0 !important; font-size: 0.82rem; }
+.pdf-rendering .del-row-btn, .pdf-rendering .add-row-btn, .pdf-rendering .cb-cell { display: none; }
+.pdf-rendering .row-disabled { display: none; }
+.pdf-rendering .fee-table tr.subtotal-row:not(.pdf-hide) { display: table-row !important; }
+.pdf-rendering .fee-table tr.fee-row { page-break-inside: avoid; }
+.pdf-rendering .pdf-header { text-align: center; padding: 24px 0 16px; border-bottom: 1px solid var(--accent); margin-bottom: 16px; }
+.pdf-rendering .pdf-header h1 { font-size: 1.4rem; color: var(--accent); letter-spacing: 1px; }
+.pdf-rendering .pdf-header img { max-height: 45px; margin-bottom: 6px; }
+.pdf-rendering .card { box-shadow: none; border: 1px solid var(--border); }
+.pdf-rendering .summary-card { page-break-inside: avoid; }
+.pdf-rendering .summary-input { border: none !important; background: none !important; text-align: right; }
+.pdf-rendering .terms-section { page-break-inside: avoid; }
+.pdf-rendering .pdf-hide { display: none !important; }
+
+/* ========== PROJECT TYPE ========== */
+.project-type-bar { display: flex; gap: 8px; padding: 16px 0; flex-wrap: wrap; }
+.project-type-chip { padding: 6px 16px; border-radius: 20px; border: 1px solid var(--border); background: var(--card); cursor: pointer; font-size: 0.85rem; font-weight: 500; transition: all 0.15s; }
+.project-type-chip:hover { border-color: var(--accent); color: var(--accent); }
+.project-type-chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 768px) {
+  .info-grid { grid-template-columns: 1fr; }
+  .info-row { border-right: none !important; }
+  .toolbar { padding: 10px 16px; }
+  .main-content { padding: 16px; }
+  .tabs { padding: 12px 16px 0; overflow-x: auto; }
+  .terms-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== TOOLBAR ===== -->
+<div class="toolbar">
+  <img class="toolbar-logo" id="toolbarLogo" src="" alt="" style="display:none">
+  <span class="toolbar-brand">YUUNALAB+</span>
+  <div class="toolbar-spacer"></div>
+  <span class="no-pdf" style="font-size:0.75rem;color:var(--text-secondary);letter-spacing:0.3px;margin-right:4px;">Quotation System by <a href="https://github.com/yuunawang" target="_blank" style="color:var(--accent);text-decoration:none;font-weight:600;">yuunawang</a></span>
+  <div class="toolbar-actions">
+    <button class="btn btn-sm" onclick="saveToLocal()">&#128190; Save/&#20445;&#23384;</button>
+    <button class="btn btn-sm" onclick="loadFromLocal()">&#128194; Load/&#21152;&#36733;</button>
+    <button class="btn btn-sm btn-primary" onclick="openExportModal()">&#128196; Export PDF/&#23548;&#20986;</button>
+    <button class="btn btn-sm btn-icon" onclick="toggleSettings()" title="Settings/&#35774;&#32622;">&#9881;</button>
+  </div>
+</div>
+
+<!-- ===== TABS ===== -->
+<div class="tabs">
+  <button class="tab active" data-tab="quotation">&#128203; Quotation/&#25253;&#20215;&#21333;</button>
+  <button class="tab" data-tab="equipments">&#128247; Equipment List/&#22120;&#26448;&#28165;&#21333;</button>
+  <button class="tab" data-tab="props">&#127917; Props List/&#36947;&#20855;&#28165;&#21333;</button>
+</div>
+
+<!-- ===== EXPORT MODAL ===== -->
+<div class="export-modal-overlay" id="exportOverlay">
+  <div class="export-modal">
+    <h3>Export PDF/&#23548;&#20986;&#36873;&#39033;</h3>
+    <label class="export-cb"><input type="checkbox" id="expQuotation" checked> Quotation/&#25253;&#20215;&#21333;</label>
+    <label class="export-cb"><input type="checkbox" id="expEquipment" checked> Equipment List/&#22120;&#26448;&#28165;&#21333;</label>
+    <label class="export-cb"><input type="checkbox" id="expProps" checked> Props List/&#36947;&#20855;&#28165;&#21333;</label>
+    <div class="export-modal-actions">
+      <button class="btn btn-sm" onclick="closeExportModal()">Cancel/&#21462;&#28040;</button>
+      <button class="btn btn-sm btn-primary" onclick="doExportPDF()">Export/&#23548;&#20986;</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MAIN ===== -->
+<div class="main-content">
+  <div class="pdf-only pdf-header">
+    <img id="pdfLogo" src="" alt="" style="display:none">
+    <h1 id="pdfTitle">YUUNALAB+ Product Quotation</h1>
+  </div>
+
+  <!-- ===== QUOTATION TAB ===== -->
+  <div class="tab-panel active" id="panel-quotation">
+    <div class="project-type-bar">
+      <button class="project-type-chip active" data-type="photo" onclick="switchProjectType(this)">&#128247; Photography/&#24179;&#38754;&#25293;&#25668;</button>
+      <button class="project-type-chip" data-type="video" onclick="switchProjectType(this)">&#127909; Video/&#35270;&#39057;&#25293;&#25668;</button>
+      <button class="project-type-chip" data-type="full" onclick="switchProjectType(this)">&#127912; Full Package/&#20840;&#26696;</button>
+      <button class="project-type-chip" data-type="ai" onclick="switchProjectType(this)">&#129302; AI Composite/AI&#21512;&#25104;</button>
+    </div>
+
+    <div class="card">
+      <div class="card-header">Project Information/&#39033;&#30446;&#20449;&#24687;</div>
+      <div class="info-grid">
+        <div class="info-row"><div class="info-label">Client/&#23458;&#25143;</div><div class="info-value"><input type="text" id="info-client" placeholder="Client name"></div></div>
+        <div class="info-row"><div class="info-label">Project/&#39033;&#30446;</div><div class="info-value"><input type="text" id="info-project" placeholder="Project name"></div></div>
+        <div class="info-row"><div class="info-label">Agency/&#24191;&#21578;&#21830;</div><div class="info-value"><input type="text" id="info-agency" placeholder="Agency"></div></div>
+        <div class="info-row"><div class="info-label">Date/&#26085;&#26399;</div><div class="info-value"><input type="text" id="info-date" placeholder="2025"></div></div>
+        <div class="info-row"><div class="info-label">Representative/&#23458;&#25143;&#20195;&#34920;</div><div class="info-value"><input type="text" id="info-rep" placeholder="Client representative"></div></div>
+        <div class="info-row"><div class="info-label">Order No./&#35746;&#21333;&#32534;&#21495;</div><div class="info-value"><input type="text" id="info-order" placeholder="Order number"></div></div>
+        <div class="info-row"><div class="info-label">Address/&#22320;&#22336;</div><div class="info-value"><input type="text" id="info-address" placeholder="Address"></div></div>
+        <div class="info-row"><div class="info-label">Photographer/&#25668;&#24433;&#24072;</div><div class="info-value"><input type="text" id="info-photographer" value="Yuuna Wang"></div></div>
+        <div class="info-row"><div class="info-label">City/&#22478;&#24066;</div><div class="info-value"><input type="text" id="info-city" value="Shanghai"></div></div>
+        <div class="info-row"><div class="info-label">Make-Up Stylist/&#21270;&#22918;&#36896;&#22411;</div><div class="info-value"><input type="text" id="info-makeup" placeholder="Makeup stylist"></div></div>
+        <div class="info-row"><div class="info-label">Tel/Fax/&#30005;&#35805;&#20256;&#30495;</div><div class="info-value"><input type="text" id="info-tel" placeholder="Phone"></div></div>
+        <div class="info-row"><div class="info-label">Tel/Fax/&#30005;&#35805;&#20256;&#30495;</div><div class="info-value"><input type="text" id="info-tel2" placeholder="Phone 2"></div></div>
+        <div class="info-row"><div class="info-label">Cc:Financial Dept/&#25220;&#36865;</div><div class="info-value"><input type="text" id="info-cc" placeholder="Financial Dept"></div></div>
+        <div class="info-row"><div class="info-label"></div><div class="info-value"></div></div>
+      </div>
+    </div>
+
+    <div class="card overflow-visible">
+      <div class="card-header">Fee Items/&#36153;&#29992;&#26126;&#32454;</div>
+      <table class="fee-table" id="feeTable">
+        <thead><tr>
+          <th class="cb-cell no-pdf">&#10003;</th>
+          <th class="item-cell">Item/&#39033;&#30446;</th>
+          <th class="desc-cell">Description/&#35828;&#26126;</th>
+          <th class="price-cell num">Unit Price/&#21333;&#20215;(&#165;)</th>
+          <th class="qty-cell num">Qty/&#20214;&#25968;</th>
+          <th class="unit-cell">Unit/&#21333;&#20301;</th>
+          <th class="total-cell num">Total/&#24635;&#35745;(&#165;)</th>
+          <th class="note-cell">Note/&#22791;&#27880;</th>
+          <th class="no-pdf" style="width:30px"></th>
+        </tr></thead>
+        <tbody id="feeBody"></tbody>
+      </table>
+    </div>
+
+    <div class="summary-card" id="summaryCard">
+      <div class="summary-row"><span class="summary-label">SubTotal (per day)/&#21333;&#26085;&#23567;&#35745;</span><span class="summary-value" id="summarySubtotal">&#165;0.00</span></div>
+      <div class="summary-row"><span class="summary-label">Shooting Days/&#25293;&#25668;&#22825;&#25968;</span><input type="number" class="summary-input" id="shootingDays" value="1" min="1" step="1" oninput="recalcAll()" style="width:80px"></div>
+      <div class="summary-row"><span class="summary-label">Subtotal &times; Days/&#22825;&#25968;&#21512;&#35745;</span><span class="summary-value" id="summaryDaysTotal">&#165;0.00</span></div>
+      <div class="summary-row"><span class="summary-label">Discount/&#25240;&#25187; <select id="discountType" oninput="recalcAll()" style="margin-left:6px;padding:2px 4px;border:1px solid var(--border);border-radius:4px;font-size:0.8rem;"><option value="percent">%</option><option value="amount">&#165;</option></select></span><input type="number" class="summary-input" id="discountValue" value="0" min="0" step="0.01" oninput="recalcAll()"></div>
+      <div class="summary-row"><span class="summary-label">Round Down/&#25273;&#38646;</span><input type="number" class="summary-input" id="roundDown" value="0" min="0" step="0.01" oninput="recalcAll()"></div>
+      <div class="summary-row"><span class="summary-label">Package Price/&#25171;&#21253;&#20215;</span><input type="number" class="summary-input" id="packagePrice" value="" min="0" step="0.01" oninput="recalcAll()" placeholder="&#31354;=&#19981;&#21551;&#29992;"></div>
+      <div class="summary-row"><span class="summary-label">Tax Rate/&#31246;&#29575;</span><span style="display:flex;align-items:center;gap:4px;"><input type="number" class="summary-input" id="taxRate" value="1" min="0" max="100" step="0.01" oninput="recalcAll()" style="width:80px"><span>%</span></span></div>
+      <div class="summary-row"><span class="summary-label">Tax/&#31246;&#39069;</span><span class="summary-value" id="summaryTax">&#165;0.00</span></div>
+      <div class="summary-row total"><span>Total Charges/&#24635;&#36153;&#29992;</span><span id="summaryTotal">&#165;0.00</span></div>
+    </div>
+
+    <div class="card" style="margin-top:20px">
+      <div class="card-header">Payment Terms & Notes/&#20184;&#27454;&#26465;&#27454;&#19982;&#22791;&#27880;</div>
+      <div class="terms-section">
+        <h4>Payment Terms/&#20184;&#27454;&#26465;&#27454;</h4>
+        <textarea class="terms-textarea" id="paymentTerms">Payment Terms/&#25903;&#20184;&#26041;&#24335;: Cash/&#29616;&#37329; &#25110; Wire Transfer/&#32593;&#38134;&#30005;&#27719;
+
+&#25293;&#25668;&#21450;&#35774;&#35745;&#21069;&#30002;&#26041;&#39044;&#20184;&#21512;&#21516;&#24635;&#39069;&#30340;40%&#65292;&#25293;&#25668;&#32467;&#26463;&#24403;&#22825;&#25903;&#20184;&#21097;&#19979;60%&#23614;&#27454;&#12290;&#30002;&#26041;&#30830;&#35748;&#25152;&#26377;&#20462;&#29255;&#25968;&#37327;&#21450;&#25910;&#21040;&#20462;&#29255;&#23567;&#26679;&#21518;&#36861;&#21152;&#25903;&#20184;&#20840;&#37096;&#20462;&#29255;&#27454;&#39033;&#65292;&#25910;&#27454;&#21518;&#21457;&#36865;&#25104;&#21697;&#22823;&#22270;&#12290;
+&#22806;&#22320;&#25293;&#25668;&#38656;&#35201;&#25215;&#25285;&#20154;&#21592;&#30340;&#20132;&#36890;&#21450;&#20303;&#23487;&#36153;&#29992;&#65292;&#21487;&#23454;&#25253;&#23454;&#38144;&#12290;</textarea>
+        <h4 style="margin-top:16px">Production Schedule/&#21046;&#20316;&#25490;&#26399;</h4>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px;">
+          <div class="info-row" style="border:1px solid var(--border);border-radius:4px;"><div class="info-label">Production Period/&#21046;&#20316;&#21608;&#26399;</div><div class="info-value"><input type="text" id="info-production" value="30 Workdays/&#24037;&#20316;&#26085;"></div></div>
+          <div class="info-row" style="border:1px solid var(--border);border-radius:4px;"><div class="info-label">Shooting Time/&#25293;&#25668;&#26102;&#38388;</div><div class="info-value"><input type="text" id="info-shooting" value="2 Workdays/&#24037;&#20316;&#26085;"></div></div>
+        </div>
+        <h4 style="margin-top:16px">Notes/&#22791;&#27880;</h4>
+        <textarea class="terms-textarea" id="notes" style="min-height:60px">1) &#26412;&#25253;&#20215;&#21333;&#36830;&#21516;&#25293;&#25668;&#21327;&#35758;&#20070;&#24517;&#39035;&#22312;&#23458;&#25143;&#31614;&#32626;&#21518;&#26041;&#22987;&#29983;&#25928;&#65292;&#25293;&#25668;&#20043;&#21069;&#39044;&#20184;&#21512;&#21516;&#27454;&#39033;&#30340;40%&#12290;
+2) &#26410;&#31614;&#32626;&#21512;&#21516;&#25110;&#26410;&#20184;&#39044;&#20184;&#27454;&#19981;&#20445;&#35777;&#21046;&#20316;&#26102;&#38388;&#12290;&#26368;&#32456;&#35774;&#35745;&#36153;&#25353;&#23454;&#38469;&#29031;&#29255;&#25968;&#32467;&#31639;&#12290;</textarea>
+        <div class="terms-grid">
+          <div class="sig-box"><div class="sig-label">Approved by Client (Signature with Chop)<br>&#23458;&#25143;&#25480;&#26435;&#20195;&#34920;&#31614;&#23383;/&#30422;&#31456;&#30830;&#35748;</div><div style="margin-top:40px;border-top:1px solid var(--border);padding-top:8px;"><span style="font-size:0.8rem;color:var(--text-secondary);">Date/&#26085;&#26399;: _______________</span></div></div>
+          <div class="sig-box"><div class="sig-label">Approved by Studio (Signature with Chop)<br>&#24037;&#20316;&#23460;&#25480;&#26435;&#20195;&#34920;&#31614;&#23383;/&#30422;&#31456;&#30830;&#35748;</div><div style="margin-top:40px;border-top:1px solid var(--border);padding-top:8px;"><span style="font-size:0.8rem;color:var(--text-secondary);">Date/&#26085;&#26399;: _______________</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== EQUIPMENT TAB ===== -->
+  <div class="tab-panel" id="panel-equipments">
+    <div class="pdf-only pdf-header"><h1>YUUNALAB+ Equipment List/&#22120;&#26448;&#28165;&#21333;</h1></div>
+    <div class="card">
+      <div class="card-header">Equipment List Info/&#22120;&#26448;&#28165;&#21333;&#20449;&#24687;</div>
+      <div class="info-grid">
+        <div class="info-row"><div class="info-label">Client/&#23458;&#25143;</div><div class="info-value"><input type="text" class="sync-client" placeholder="Client name"></div></div>
+        <div class="info-row"><div class="info-label">Project/&#39033;&#30446;</div><div class="info-value"><input type="text" class="sync-project" placeholder="Project name"></div></div>
+        <div class="info-row"><div class="info-label">Date/&#26085;&#26399;</div><div class="info-value"><input type="text" class="sync-date" placeholder="Date"></div></div>
+        <div class="info-row"><div class="info-label">Order No./&#35746;&#21333;&#32534;&#21495;</div><div class="info-value"><input type="text" class="sync-order" placeholder="Order No."></div></div>
+        <div class="info-row"><div class="info-label">Person in Charge/&#36127;&#36131;&#20154;</div><div class="info-value"><input type="text" id="equip-person" placeholder="Person in charge"></div></div>
+        <div class="info-row"><div class="info-label">Tel/Fax/&#30005;&#35805;&#20256;&#30495;</div><div class="info-value"><input type="text" class="sync-tel" placeholder="Tel/Fax"></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">Equipment/&#22120;&#26448; <button class="btn btn-sm no-pdf" onclick="addListRow('equipTable')">+ Add Row/&#28155;&#21152;</button></div>
+      <table class="list-table" id="equipTable"><thead><tr>
+        <th style="width:50px">No.</th><th>Item/&#39033;&#30446;</th><th>Description/&#35828;&#26126;</th>
+        <th style="width:100px;text-align:right">Unit Price/&#21333;&#20215;(&#165;)</th><th style="width:70px;text-align:right">Qty/&#20214;&#25968;</th>
+        <th style="width:100px;text-align:right">Total/&#24635;&#35745;(&#165;)</th><th>Note/&#22791;&#27880;</th><th class="no-pdf" style="width:30px"></th>
+      </tr></thead><tbody id="equipBody"></tbody></table>
+    </div>
+  </div>
+
+  <!-- ===== PROPS TAB ===== -->
+  <div class="tab-panel" id="panel-props">
+    <div class="pdf-only pdf-header"><h1>YUUNALAB+ Photography Props List/&#36947;&#20855;&#28165;&#21333;</h1></div>
+    <div class="card">
+      <div class="card-header">Props List Info/&#36947;&#20855;&#28165;&#21333;&#20449;&#24687;</div>
+      <div class="info-grid">
+        <div class="info-row"><div class="info-label">Client/&#23458;&#25143;</div><div class="info-value"><input type="text" class="sync-client" placeholder="Client name"></div></div>
+        <div class="info-row"><div class="info-label">Project/&#39033;&#30446;</div><div class="info-value"><input type="text" class="sync-project" placeholder="Project name"></div></div>
+        <div class="info-row"><div class="info-label">Date/&#26085;&#26399;</div><div class="info-value"><input type="text" class="sync-date" placeholder="Date"></div></div>
+        <div class="info-row"><div class="info-label">Order No./&#35746;&#21333;&#32534;&#21495;</div><div class="info-value"><input type="text" class="sync-order" placeholder="Order No."></div></div>
+        <div class="info-row"><div class="info-label">Person in Charge/&#36127;&#36131;&#20154;</div><div class="info-value"><input type="text" id="props-person" placeholder="Person in charge"></div></div>
+        <div class="info-row"><div class="info-label">Tel/Fax/&#30005;&#35805;&#20256;&#30495;</div><div class="info-value"><input type="text" class="sync-tel" placeholder="Tel/Fax"></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">Props/&#36947;&#20855; <button class="btn btn-sm no-pdf" onclick="addListRow('propsTable')">+ Add Row/&#28155;&#21152;</button></div>
+      <table class="list-table" id="propsTable"><thead><tr>
+        <th style="width:50px">No.</th><th>Item/&#39033;&#30446;</th><th>Description/&#35828;&#26126;</th>
+        <th style="width:100px;text-align:right">Unit Price/&#21333;&#20215;(&#165;)</th><th style="width:70px;text-align:right">Qty/&#20214;&#25968;</th>
+        <th style="width:100px;text-align:right">Total/&#24635;&#35745;(&#165;)</th><th>Note/&#22791;&#27880;</th><th class="no-pdf" style="width:30px"></th>
+      </tr></thead><tbody id="propsBody"></tbody></table>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SETTINGS ===== -->
+<div class="settings-overlay" id="settingsOverlay" onclick="toggleSettings()"></div>
+<div class="settings-panel" id="settingsPanel">
+  <div class="settings-title">Settings/&#35774;&#32622; <button class="btn btn-sm btn-icon" onclick="toggleSettings()">&times;</button></div>
+  <div class="settings-group"><label>Brand Name/&#21697;&#29260;&#21517;</label><input type="text" id="setBrandName" value="YUUNALAB+" oninput="updateBrand()"></div>
+  <div class="settings-group"><label>Logo Upload/&#19978;&#20256;Logo</label><input type="file" id="setLogo" accept="image/*" onchange="handleLogo(event)"><img class="logo-preview" id="logoPreview" src="" alt=""></div>
+  <div class="settings-group"><label>Accent Color/&#20027;&#39064;&#33394;</label><input type="color" id="setAccentColor" value="#c0392b" onchange="updateAccentColor(this.value)"></div>
+  <div class="settings-group"><label>Default Photographer/&#40664;&#35748;&#25668;&#24433;&#24072;</label><input type="text" id="setPhotographer" value="Yuuna Wang"></div>
+  <div class="settings-group"><label>Default City/&#40664;&#35748;&#22478;&#24066;</label><input type="text" id="setCity" value="Shanghai"></div>
+  <hr style="margin:20px 0;border:none;border-top:1px solid var(--border);">
+  <div class="settings-group"><label>API Provider (Phase 2)</label><select id="setApiProvider" disabled><option>OpenAI-compatible</option><option>Anthropic</option></select></div>
+  <div class="settings-group"><label>API Key (Phase 2)</label><input type="text" id="setApiKey" placeholder="Coming in Phase 2" disabled></div>
+  <div class="settings-group"><label>API Base URL (Phase 2)</label><input type="text" id="setApiBase" placeholder="https://api.openai.com/v1" disabled></div>
+</div>
+
+<script>
+// ============================================================
+// BILINGUAL ROLE DICTIONARY & TEMPLATES
+// ============================================================
+const ROLE_DICT = {
+  'Photography Fee':'平面摄影','Photography Assistant':'摄影助理','Lighting Assistant':'灯光助理',
+  'Edit Photo':'后期修图','Video Fee':'视频拍摄','Composite Fee':'合成费用',
+  'Video Assistant':'视频助理','Editor':'剪辑','Effects':'特效','Color Grading':'达芬奇调色',
+  'Make Up':'化妆师','Hair':'发型师','Stylist':'服装搭配','Art Producer':'美术制片',
+  'Art Director':'美术指导','Prop Stylist':'道具师','Wardrobe':'服装管理',
+  'Lighting Studio':'摄影棚','Photography Props':'拍摄道具','Lights':'设备灯光',
+  'Equipments':'器材','Setting':'场景搭建','Model Fee':'模特费用','Director':'导演',
+  'Producer':'制片人','Drone Operator':'无人机操作','Sound Engineer':'录音师',
+  'Gaffer':'灯光指导','Grip':'场务','DIT':'数字影像工程师','Retoucher':'精修师',
+  'Location Scout':'场地勘景','Catering':'餐饮供应','Transportation':'交通运输',
+  'Accommodation':'住宿','Insurance':'保险','Permits':'许可证费用',
+  '3D Modeler':'3D建模师','3D Animator':'3D动画师','3D Renderer':'3D渲染师',
+  'Texture Artist':'材质贴图师','Lighting TD':'灯光TD','Compositing Artist':'合成师',
+  'Rigging Artist':'绑定师','Motion Capture':'动作捕捉',
+  'Houdini FX':'Houdini特效','Unreal Engine':'虚幻引擎制作',
+};
+// Reverse dict
+const ROLE_DICT_REV = {};
+Object.entries(ROLE_DICT).forEach(([en, cn]) => { ROLE_DICT_REV[cn] = en; });
+
+// Templates grouped by category
+const ROLE_TEMPLATES = {
+  'Photography/摄影': [
+    {en:'Photography Fee',cn:'平面摄影'},{en:'Photography Assistant',cn:'摄影助理'},
+    {en:'Lighting Assistant',cn:'灯光助理'},{en:'Edit Photo',cn:'后期修图'},
+    {en:'Retoucher',cn:'精修师'},{en:'Composite Fee',cn:'合成费用'},
+  ],
+  'Video/视频': [
+    {en:'Video Fee',cn:'视频拍摄'},{en:'Video Assistant',cn:'视频助理'},
+    {en:'Director',cn:'导演'},{en:'Editor',cn:'剪辑'},{en:'Effects',cn:'特效'},
+    {en:'Color Grading',cn:'达芬奇调色'},{en:'Sound Engineer',cn:'录音师'},
+    {en:'Drone Operator',cn:'无人机操作'},{en:'DIT',cn:'数字影像工程师'},
+  ],
+  'Styling/造型': [
+    {en:'Make Up',cn:'化妆师'},{en:'Hair',cn:'发型师'},{en:'Stylist',cn:'服装搭配'},
+    {en:'Art Producer',cn:'美术制片'},{en:'Art Director',cn:'美术指导'},
+    {en:'Prop Stylist',cn:'道具师'},{en:'Wardrobe',cn:'服装管理'},
+  ],
+  'Production/制片': [
+    {en:'Producer',cn:'制片人'},{en:'Model Fee',cn:'模特费用'},
+    {en:'Location Scout',cn:'场地勘景'},{en:'Catering',cn:'餐饮供应'},
+    {en:'Transportation',cn:'交通运输'},{en:'Accommodation',cn:'住宿'},
+    {en:'Insurance',cn:'保险'},{en:'Permits',cn:'许可证费用'},
+  ],
+  'Equipment/设备': [
+    {en:'Lighting Studio',cn:'摄影棚'},{en:'Photography Props',cn:'拍摄道具'},
+    {en:'Lights',cn:'设备灯光'},{en:'Equipments',cn:'器材'},{en:'Setting',cn:'场景搭建'},
+    {en:'Grip',cn:'场务'},{en:'Gaffer',cn:'灯光指导'},
+  ],
+  '3D/三维': [
+    {en:'3D Modeler',cn:'3D建模师'},{en:'3D Animator',cn:'3D动画师'},
+    {en:'3D Renderer',cn:'3D渲染师'},{en:'Texture Artist',cn:'材质贴图师'},
+    {en:'Lighting TD',cn:'灯光TD'},{en:'Compositing Artist',cn:'合成师'},
+    {en:'Rigging Artist',cn:'绑定师'},{en:'Motion Capture',cn:'动作捕捉'},
+    {en:'Houdini FX',cn:'Houdini特效'},{en:'Unreal Engine',cn:'虚幻引擎制作'},
+  ],
+};
+
+// ============================================================
+// FEE SECTIONS & PROJECT TYPES
+// ============================================================
+const FEE_SECTIONS = {
+  photo: [{ section:'Photography/平面拍摄', items:[
+    {item:'Photography Fee',desc:'平面摄影',price:'',qty:'1',unit:'天/day',note:''},
+    {item:'Photography Assistant',desc:'摄影助理',price:'',qty:'',unit:'人/pax·day',note:''},
+    {item:'Lighting Assistant',desc:'灯光助理',price:'',qty:'',unit:'人/pax·day',note:''},
+    {item:'Edit Photo',desc:'后期修图',price:'',qty:'',unit:'张/pcs',note:''},
+    {item:'Composite Fee',desc:'合成费用',price:'',qty:'',unit:'张/pcs',note:''},
+  ]}],
+  video: [{ section:'Video/视频拍摄', items:[
+    {item:'Video Fee',desc:'视频拍摄',price:'',qty:'1',unit:'天/day',note:''},
+    {item:'Video Assistant',desc:'视频助理',price:'',qty:'',unit:'人/pax·day',note:''},
+    {item:'Editor',desc:'剪辑',price:'',qty:'',unit:'条/clip',note:''},
+    {item:'Effects',desc:'特效',price:'',qty:'',unit:'秒/sec',note:''},
+    {item:'Color Grading',desc:'达芬奇调色',price:'',qty:'1',unit:'条/clip',note:''},
+  ]}],
+  styling: [{ section:'Styling/妆发·服搭·美术', items:[
+    {item:'Make Up',desc:'化妆师',price:'',qty:'',unit:'人/pax·day',note:''},
+    {item:'Hair',desc:'发型师',price:'',qty:'',unit:'人/pax·day',note:''},
+    {item:'Stylist',desc:'服装搭配',price:'',qty:'',unit:'人/pax·day',note:''},
+    {item:'Art Producer',desc:'美术制片',price:'',qty:'',unit:'人/pax·day',note:''},
+  ]}],
+  equipment: [{ section:'Lighting & Equipment/灯光及设备', items:[
+    {item:'Lighting Studio',desc:'摄影棚',price:'0',qty:'',unit:'小时/hr',note:''},
+    {item:'Photography Props',desc:'拍摄道具',price:'',qty:'',unit:'批/lot',note:'另见道具清单'},
+    {item:'Lights',desc:'设备灯光',price:'',qty:'',unit:'套/set',note:'另见器材清单'},
+    {item:'Equipments',desc:'器材',price:'',qty:'',unit:'套/set',note:''},
+  ]}],
+  setting: [{ section:'Setting/场景搭建', items:[
+    {item:'Setting',desc:'场景搭建',price:'',qty:'1',unit:'场/location',note:'待定/TBD'},
+  ]}],
+};
+
+const PROJECT_TYPES = {
+  photo: ['photo','styling','equipment','setting'],
+  video: ['video','styling','equipment','setting'],
+  full:  ['photo','video','styling','equipment','setting'],
+  ai:    ['photo','equipment'],
+};
+
+let currentType = 'photo';
+// Store all fee data per section so switching types preserves data
+let feeDataStore = {};
+
+// ============================================================
+// INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+    });
+  });
+  const syncMap = [['info-client','.sync-client'],['info-project','.sync-project'],['info-date','.sync-date'],['info-order','.sync-order'],['info-tel','.sync-tel']];
+  syncMap.forEach(([srcId, cls]) => {
+    document.getElementById(srcId).addEventListener('input', () => {
+      document.querySelectorAll(cls).forEach(el => { el.value = document.getElementById(srcId).value; });
+    });
+  });
+  document.getElementById('info-date').value = new Date().getFullYear().toString();
+  buildFeeTable();
+  for (let i = 0; i < 8; i++) { addListRow('equipTable'); addListRow('propsTable'); }
+  if (localStorage.getItem('yuunalab_quotation')) loadFromLocal();
+  // Close template menus on outside click
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.tmpl-dropdown')) document.querySelectorAll('.tmpl-menu').forEach(m => m.classList.remove('open'));
+  });
+});
+
+// ============================================================
+// FEE TABLE — with data preservation on type switch
+// ============================================================
+function saveFeeData() {
+  // Clear then re-save current fee rows into feeDataStore by section
+  const currentSections = PROJECT_TYPES[currentType];
+  currentSections.forEach(sk => { feeDataStore[sk] = []; });
+  document.querySelectorAll('#feeBody tr.fee-row').forEach(tr => {
+    const sk = tr.dataset.section;
+    if (!feeDataStore[sk]) feeDataStore[sk] = [];
+    const cb = tr.querySelector('input[type="checkbox"]');
+    const inputs = tr.querySelectorAll('td input');
+    feeDataStore[sk].push({
+      checked: cb?.checked || false,
+      values: Array.from(inputs).map(i => i.type === 'checkbox' ? i.checked : i.value)
+    });
+  });
+}
+
+function restoreFeeData() {
+  Object.keys(feeDataStore).forEach(sk => {
+    const rows = document.querySelectorAll(`#feeBody tr.fee-row[data-section="${sk}"]`);
+    const savedRows = feeDataStore[sk] || [];
+    // Match existing rows first, add extra if needed
+    savedRows.forEach((data, i) => {
+      let tr = rows[i];
+      if (!tr) {
+        // Need to add a row
+        const addBtn = document.querySelector(`#feeBody tr.no-pdf[data-section="${sk}"] .add-row-btn`);
+        if (addBtn) { addFeeRow(addBtn, sk); tr = document.querySelectorAll(`#feeBody tr.fee-row[data-section="${sk}"]`)[i]; }
+      }
+      if (!tr) return;
+      const inputs = tr.querySelectorAll('td input');
+      data.values.forEach((val, j) => {
+        if (inputs[j]) {
+          if (inputs[j].type === 'checkbox') { inputs[j].checked = val; }
+          else { inputs[j].value = val; }
+        }
+      });
+      const cb = tr.querySelector('input[type="checkbox"]');
+      if (cb) { tr.classList.toggle('row-disabled', !cb.checked); }
+    });
+  });
+  recalcAll();
+}
+
+function buildFeeTable() {
+  const tbody = document.getElementById('feeBody');
+  tbody.innerHTML = '';
+  const sections = PROJECT_TYPES[currentType];
+  sections.forEach(sectionKey => {
+    FEE_SECTIONS[sectionKey].forEach(group => {
+      const headerRow = document.createElement('tr');
+      headerRow.className = 'section-header'; headerRow.dataset.section = sectionKey;
+      headerRow.innerHTML = `<td colspan="9">${group.section}</td>`;
+      tbody.appendChild(headerRow);
+      group.items.forEach(item => tbody.appendChild(createFeeRow(item, sectionKey)));
+      // Template add button
+      const addTr = document.createElement('tr');
+      addTr.className = 'no-pdf'; addTr.dataset.section = sectionKey;
+      addTr.innerHTML = `<td colspan="9" style="text-align:center;padding:6px;">
+        <div class="tmpl-dropdown">
+          <button class="add-row-btn" onclick="toggleTemplateMenu(this, '${sectionKey}')">+ Add Item/添加项目 ▾</button>
+          <div class="tmpl-menu" id="tmpl-${sectionKey}"></div>
+        </div>
+      </td>`;
+      tbody.appendChild(addTr);
+      // Subtotal
+      const subTr = document.createElement('tr');
+      subTr.className = 'subtotal-row'; subTr.dataset.section = sectionKey;
+      subTr.innerHTML = `<td colspan="6" style="text-align:right">SubTotal/小计</td><td class="total-cell total-val" data-subtotal="${sectionKey}">¥0.00</td><td colspan="2"></td>`;
+      tbody.appendChild(subTr);
+    });
+  });
+  restoreFeeData();
+}
+
+function createFeeRow(item, sectionKey) {
+  const tr = document.createElement('tr');
+  tr.dataset.section = sectionKey; tr.className = 'fee-row row-disabled';
+  tr.innerHTML = `
+    <td class="cb-cell no-pdf"><input type="checkbox" onchange="toggleFeeRow(this)"></td>
+    <td class="item-cell"><input type="text" value="${item.item}" title="${item.item} / ${item.desc}"></td>
+    <td class="desc-cell"><input type="text" value="${item.desc}"></td>
+    <td class="price-cell"><input type="number" value="${item.price}" min="0" step="0.01" style="text-align:right" oninput="recalcRow(this)"></td>
+    <td class="qty-cell"><input type="number" value="${item.qty}" min="0" step="1" style="text-align:right" oninput="recalcRow(this)"></td>
+    <td class="unit-cell"><input type="text" value="${item.unit}"></td>
+    <td class="total-cell total-val">¥0.00</td>
+    <td class="note-cell"><input type="text" value="${item.note || ''}"></td>
+    <td class="no-pdf"><button class="del-row-btn" onclick="delFeeRow(this)" title="Delete/删除">×</button></td>`;
+  return tr;
+}
+
+// Map template categories to fee section keys
+const CAT_TO_SECTION = {
+  'Photography/摄影':'photo', 'Video/视频':'video', 'Styling/造型':'styling',
+  'Production/制片':'setting', 'Equipment/设备':'equipment', '3D/三维':'3d',
+};
+
+function toggleTemplateMenu(btn, sectionKey) {
+  const menu = document.getElementById('tmpl-' + sectionKey);
+  if (!menu.innerHTML.trim()) {
+    let html = '';
+    html += `<div class="tmpl-menu-item" onclick="addFeeRowFromTemplate(this,'${sectionKey}','','','')"><span>+ Custom/自定义空行</span></div>`;
+    Object.entries(ROLE_TEMPLATES).forEach(([cat, roles]) => {
+      const catSection = CAT_TO_SECTION[cat] || sectionKey;
+      html += `<div class="tmpl-menu-cat">${cat}</div>`;
+      roles.forEach(r => {
+        html += `<div class="tmpl-menu-item" onclick="addFeeRowFromTemplate(this,'${sectionKey}','${r.en.replace(/'/g,"\\'")}','${r.cn}','${catSection}')"><span>${r.en}</span><span class="cn">${r.cn}</span></div>`;
+      });
+    });
+    menu.innerHTML = html;
+  }
+  menu.classList.toggle('open');
+}
+
+// Section display names for dynamically created sections
+const SECTION_NAMES = {
+  photo:'Photography/平面拍摄', video:'Video/视频拍摄', styling:'Styling/妆发·服搭·美术',
+  equipment:'Lighting & Equipment/灯光及设备', setting:'Setting/场景搭建',
+  '3d':'3D/三维制作', production:'Production/制片',
+};
+
+function addFeeRowFromTemplate(menuItem, currentSK, en, cn, targetSK) {
+  const menu = menuItem.closest('.tmpl-menu');
+  menu.classList.remove('open');
+  const tbody = document.getElementById('feeBody');
+  // If target section is different and doesn't exist yet, create it
+  const actualSK = targetSK || currentSK;
+  let insertBeforeTr = null;
+
+  if (actualSK !== currentSK || !en) {
+    // Check if target section already exists
+    const existingHeader = document.querySelector(`tr.section-header[data-section="${actualSK}"]`);
+    if (existingHeader && en) {
+      // Section exists — find its add-button row to insert before
+      insertBeforeTr = document.querySelector(`tr.no-pdf[data-section="${actualSK}"]`);
+    } else if (en && !existingHeader) {
+      // Create new section: header + add button + subtotal
+      const headerRow = document.createElement('tr');
+      headerRow.className = 'section-header'; headerRow.dataset.section = actualSK;
+      headerRow.innerHTML = `<td colspan="9">${SECTION_NAMES[actualSK] || actualSK}</td>`;
+
+      const addTr = document.createElement('tr');
+      addTr.className = 'no-pdf'; addTr.dataset.section = actualSK;
+      addTr.innerHTML = `<td colspan="9" style="text-align:center;padding:6px;">
+        <div class="tmpl-dropdown">
+          <button class="add-row-btn" onclick="toggleTemplateMenu(this, '${actualSK}')">+ Add Item/添加项目 ▾</button>
+          <div class="tmpl-menu" id="tmpl-${actualSK}"></div>
+        </div></td>`;
+
+      const subTr = document.createElement('tr');
+      subTr.className = 'subtotal-row'; subTr.dataset.section = actualSK;
+      subTr.innerHTML = `<td colspan="6" style="text-align:right">SubTotal/小计</td><td class="total-cell total-val" data-subtotal="${actualSK}">¥0.00</td><td colspan="2"></td>`;
+
+      tbody.appendChild(headerRow);
+      tbody.appendChild(addTr);
+      tbody.appendChild(subTr);
+      insertBeforeTr = addTr;
+    }
+  }
+
+  if (!en && !cn) {
+    // Custom empty row — add to current section
+    insertBeforeTr = menu.closest('tr');
+  }
+
+  if (!insertBeforeTr) insertBeforeTr = menu.closest('tr');
+
+  const newRow = createFeeRow({ item: en, desc: cn, price: '', qty: '', unit: '', note: '' }, actualSK);
+  insertBeforeTr.parentNode.insertBefore(newRow, insertBeforeTr);
+  recalcAll();
+}
+
+function toggleFeeRow(cb) { const tr = cb.closest('tr'); tr.classList.toggle('row-disabled', !cb.checked); recalcRow(cb); }
+
+function recalcRow(el) {
+  const tr = el.closest('tr');
+  if (!tr || !tr.classList.contains('fee-row')) return;
+  const inputs = tr.querySelectorAll('input[type="number"]');
+  const price = parseFloat(inputs[0]?.value) || 0;
+  const qty = parseFloat(inputs[1]?.value) || 0;
+  const cb = tr.querySelector('input[type="checkbox"]');
+  const total = (cb && cb.checked) ? price * qty : 0;
+  tr.querySelector('.total-val').textContent = formatMoney(total);
+  recalcAll();
+}
+
+function recalcAll() {
+  // Gather all sections currently in the DOM (including dynamically added ones)
+  const allSK = new Set();
+  document.querySelectorAll('#feeBody tr[data-section]').forEach(tr => allSK.add(tr.dataset.section));
+  const sections = Array.from(allSK);
+  let grandTotal = 0;
+  sections.forEach(sk => {
+    let sub = 0;
+    document.querySelectorAll(`tr.fee-row[data-section="${sk}"]`).forEach(tr => {
+      const cb = tr.querySelector('input[type="checkbox"]');
+      if (cb && cb.checked) {
+        const nums = tr.querySelectorAll('input[type="number"]');
+        sub += (parseFloat(nums[0]?.value)||0) * (parseFloat(nums[1]?.value)||0);
+      }
+    });
+    const subEl = document.querySelector(`[data-subtotal="${sk}"]`);
+    if (subEl) subEl.textContent = formatMoney(sub);
+    grandTotal += sub;
+  });
+  document.getElementById('summarySubtotal').textContent = formatMoney(grandTotal);
+  // Multiply by shooting days
+  const shootDays = Math.max(1, parseInt(document.getElementById('shootingDays').value) || 1);
+  const daysTotal = grandTotal * shootDays;
+  document.getElementById('summaryDaysTotal').textContent = formatMoney(daysTotal);
+  const pkgVal = document.getElementById('packagePrice').value;
+  let finalBase = daysTotal;
+  if (pkgVal !== '' && !isNaN(parseFloat(pkgVal))) finalBase = parseFloat(pkgVal);
+  const discType = document.getElementById('discountType').value;
+  const discVal = parseFloat(document.getElementById('discountValue').value) || 0;
+  finalBase -= discType === 'percent' ? finalBase * discVal / 100 : discVal;
+  finalBase -= parseFloat(document.getElementById('roundDown').value) || 0;
+  if (finalBase < 0) finalBase = 0;
+  const taxRate = parseFloat(document.getElementById('taxRate').value) || 0;
+  const tax = finalBase * taxRate / 100;
+  document.getElementById('summaryTax').textContent = formatMoney(tax);
+  document.getElementById('summaryTotal').textContent = formatMoney(finalBase + tax);
+}
+
+function addFeeRow(btn, sectionKey) {
+  const tr = btn.closest('tr');
+  tr.parentNode.insertBefore(createFeeRow({item:'',desc:'',price:'',qty:'',unit:'',note:''}, sectionKey), tr);
+}
+
+function delFeeRow(btn) { btn.closest('tr').remove(); recalcAll(); }
+
+function switchProjectType(chip) {
+  // Save current data before switching
+  saveFeeData();
+  document.querySelectorAll('.project-type-chip').forEach(c => c.classList.remove('active'));
+  chip.classList.add('active');
+  currentType = chip.dataset.type;
+  buildFeeTable();
+}
+
+// ============================================================
+// LIST TABLES
+// ============================================================
+let equipCount = 0, propsCount = 0;
+function addListRow(tableId) {
+  const tbody = document.getElementById(tableId === 'equipTable' ? 'equipBody' : 'propsBody');
+  const num = tableId === 'equipTable' ? ++equipCount : ++propsCount;
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td style="text-align:center;color:var(--text-secondary)">${num}</td>
+    <td><input type="text" placeholder="Item name/项目名"></td><td><input type="text" placeholder="Description/说明"></td>
+    <td><input type="number" min="0" step="0.01" style="text-align:right" oninput="recalcListRow(this)"></td>
+    <td><input type="number" min="0" step="1" style="text-align:right" oninput="recalcListRow(this)" value="1"></td>
+    <td style="text-align:right;font-weight:600">¥0.00</td>
+    <td><input type="text" placeholder="Note/备注"></td>
+    <td class="no-pdf"><button class="del-row-btn" onclick="this.closest('tr').remove()">×</button></td>`;
+  tbody.appendChild(tr);
+}
+function recalcListRow(el) {
+  const tr = el.closest('tr'); const nums = tr.querySelectorAll('input[type="number"]');
+  tr.children[5].textContent = formatMoney((parseFloat(nums[0]?.value)||0) * (parseFloat(nums[1]?.value)||0));
+}
+
+// ============================================================
+// SETTINGS
+// ============================================================
+function toggleSettings() { document.getElementById('settingsPanel').classList.toggle('open'); document.getElementById('settingsOverlay').classList.toggle('open'); }
+function updateBrand() { const n = document.getElementById('setBrandName').value||'YUUNALAB+'; document.querySelector('.toolbar-brand').textContent = n; document.getElementById('pdfTitle').textContent = n + ' Product Quotation'; }
+function handleLogo(e) { const f = e.target.files[0]; if(!f)return; const r = new FileReader(); r.onload = ev => { const u = ev.target.result; ['logoPreview','toolbarLogo','pdfLogo'].forEach(id => { document.getElementById(id).src = u; document.getElementById(id).style.display = 'block'; }); }; r.readAsDataURL(f); }
+function updateAccentColor(c) {
+  document.documentElement.style.setProperty('--accent', c);
+  const [r,g,b] = [parseInt(c.slice(1,3),16), parseInt(c.slice(3,5),16), parseInt(c.slice(5,7),16)];
+  document.documentElement.style.setProperty('--accent-light', `rgb(${Math.min(255,r+30)},${Math.min(255,g+30)},${Math.min(255,b+30)})`);
+  document.documentElement.style.setProperty('--accent-bg', `rgba(${r},${g},${b},0.06)`);
+}
+
+// ============================================================
+// SAVE / LOAD
+// ============================================================
+function saveToLocal() {
+  saveFeeData();
+  const data = { type: currentType, info: {}, feeData: feeDataStore, summary: {},
+    terms: document.getElementById('paymentTerms').value, notes: document.getElementById('notes').value,
+    production: document.getElementById('info-production').value, shooting: document.getElementById('info-shooting').value,
+    settings: { brand: document.getElementById('setBrandName').value, accent: document.getElementById('setAccentColor').value, logo: document.getElementById('logoPreview').src } };
+  document.querySelectorAll('#panel-quotation .info-value input').forEach(inp => { data.info[inp.id || inp.className] = inp.value; });
+  data.summary = { discountType: document.getElementById('discountType').value, discountValue: document.getElementById('discountValue').value,
+    roundDown: document.getElementById('roundDown').value, packagePrice: document.getElementById('packagePrice').value, taxRate: document.getElementById('taxRate').value,
+    shootingDays: document.getElementById('shootingDays').value };
+  localStorage.setItem('yuunalab_quotation', JSON.stringify(data));
+  showToast('Saved!/已保存');
+}
+function loadFromLocal() {
+  const raw = localStorage.getItem('yuunalab_quotation'); if (!raw) { showToast('No saved data/无保存数据'); return; }
+  try {
+    const data = JSON.parse(raw);
+    if (data.feeData) feeDataStore = data.feeData;
+    if (data.type) { currentType = data.type; document.querySelectorAll('.project-type-chip').forEach(c => c.classList.toggle('active', c.dataset.type === currentType)); buildFeeTable(); }
+    if (data.info) Object.entries(data.info).forEach(([k,v]) => { const el = document.getElementById(k) || document.querySelector('.'+k); if(el) el.value = v; });
+    if (data.summary) Object.entries(data.summary).forEach(([k,v]) => { const el = document.getElementById(k); if(el) el.value = v; });
+    if (data.terms) document.getElementById('paymentTerms').value = data.terms;
+    if (data.notes) document.getElementById('notes').value = data.notes;
+    if (data.production) document.getElementById('info-production').value = data.production;
+    if (data.shooting) document.getElementById('info-shooting').value = data.shooting;
+    if (data.settings) { if(data.settings.brand){document.getElementById('setBrandName').value=data.settings.brand;updateBrand();} if(data.settings.accent){document.getElementById('setAccentColor').value=data.settings.accent;updateAccentColor(data.settings.accent);} }
+    recalcAll();
+    showToast('Loaded!/已加载');
+  } catch(e) { showToast('Error/加载错误'); }
+}
+
+// ============================================================
+// EXPORT PDF — with selective export + smart hiding
+// ============================================================
+function openExportModal() {
+  // Auto-detect if lists have content
+  const equipHasContent = Array.from(document.querySelectorAll('#equipBody input[type="text"]')).some(i => i.value.trim());
+  const propsHasContent = Array.from(document.querySelectorAll('#propsBody input[type="text"]')).some(i => i.value.trim());
+  document.getElementById('expEquipment').checked = equipHasContent;
+  document.getElementById('expProps').checked = propsHasContent;
+  document.getElementById('exportOverlay').classList.add('open');
+}
+function closeExportModal() { document.getElementById('exportOverlay').classList.remove('open'); }
+
+function doExportPDF() {
+  closeExportModal();
+  const body = document.body;
+  const expQ = document.getElementById('expQuotation').checked;
+  const expE = document.getElementById('expEquipment').checked;
+  const expP = document.getElementById('expProps').checked;
+
+  // Mark which panels to show
+  if (expQ) document.getElementById('panel-quotation').classList.add('pdf-export-show');
+  if (expE) document.getElementById('panel-equipments').classList.add('pdf-export-show');
+  if (expP) document.getElementById('panel-props').classList.add('pdf-export-show');
+
+  // 1. Hide empty info rows
+  document.querySelectorAll('.info-grid .info-row').forEach(row => {
+    const input = row.querySelector('input');
+    if (input && !input.value.trim()) row.classList.add('pdf-hide');
+  });
+  // 2. Hide empty fee sections
+  PROJECT_TYPES[currentType].forEach(sk => {
+    if (document.querySelectorAll(`tr.fee-row[data-section="${sk}"] input[type="checkbox"]:checked`).length === 0)
+      document.querySelectorAll(`tr[data-section="${sk}"]`).forEach(tr => tr.classList.add('pdf-hide'));
+  });
+  // 3. Hide unused summary fields
+  const dv = parseFloat(document.getElementById('discountValue').value)||0;
+  const rv = parseFloat(document.getElementById('roundDown').value)||0;
+  const pv = document.getElementById('packagePrice').value;
+  const sd = parseInt(document.getElementById('shootingDays').value) || 1;
+  document.querySelectorAll('.summary-row').forEach(row => {
+    const lbl = row.querySelector('.summary-label'); if(!lbl) return; const t = lbl.textContent;
+    if (t.includes('Discount') && dv === 0) row.classList.add('pdf-hide');
+    if (t.includes('Round Down') && rv === 0) row.classList.add('pdf-hide');
+    if (t.includes('Package Price') && (pv===''||isNaN(parseFloat(pv)))) row.classList.add('pdf-hide');
+    if (t.includes('Tax Rate')) row.classList.add('pdf-hide');
+    // Hide shooting days rows if only 1 day
+    if (sd <= 1 && t.includes('Shooting Days')) row.classList.add('pdf-hide');
+    if (sd <= 1 && t.includes('Days')) row.classList.add('pdf-hide');
+    // Rename subtotal label when days=1
+    if (sd <= 1 && t.includes('per day')) { lbl.textContent = 'SubTotal/小计'; }
+  });
+  // 4. Hide empty list rows
+  document.querySelectorAll('.list-table tbody tr').forEach(tr => {
+    if (!Array.from(tr.querySelectorAll('input[type="text"]')).some(i => i.value.trim())) tr.classList.add('pdf-hide');
+  });
+
+  body.classList.add('pdf-rendering');
+  const element = document.querySelector('.main-content');
+  const brandName = document.getElementById('setBrandName').value || 'YUUNALAB+';
+  const clientName = document.getElementById('info-client').value || 'Quotation';
+  const date = document.getElementById('info-date').value || new Date().getFullYear();
+  const opt = { margin: [8,8,8,8], filename: `${brandName}_${clientName}_${date}.pdf`,
+    image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }, pagebreak: { mode: ['css','legacy'] } };
+
+  html2pdf().set(opt).from(element).save().then(() => {
+    body.classList.remove('pdf-rendering');
+    document.querySelectorAll('.pdf-hide').forEach(el => el.classList.remove('pdf-hide'));
+    document.querySelectorAll('.pdf-export-show').forEach(el => el.classList.remove('pdf-export-show'));
+    const at = document.querySelector('.tab.active');
+    if (at) document.getElementById('panel-'+at.dataset.tab).classList.add('active');
+    showToast('PDF exported!/PDF已导出');
+  });
+}
+
+// ============================================================
+// UTILS
+// ============================================================
+function formatMoney(n) { return '¥' + (n||0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+function showToast(msg) {
+  const t = document.createElement('div'); t.textContent = msg;
+  Object.assign(t.style, { position:'fixed',bottom:'24px',left:'50%',transform:'translateX(-50%)',padding:'10px 24px',background:'#333',color:'#fff',borderRadius:'8px',fontSize:'0.9rem',zIndex:'9999',boxShadow:'0 4px 16px rgba(0,0,0,0.2)' });
+  document.body.appendChild(t); setTimeout(() => t.remove(), 2000);
+}
+</script>
+</body>
+</html>

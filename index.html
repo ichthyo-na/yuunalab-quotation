@@ -121,6 +121,8 @@ input, select, textarea, button { font-family: inherit; font-size: inherit; }
 .del-row-btn:hover { color: var(--accent); }
 .row-disabled { opacity: 0.4; }
 .row-disabled input[type="text"], .row-disabled input[type="number"] { pointer-events: none; }
+.fee-table tr.fee-row:not(.row-disabled) input[type="text"],
+.fee-table tr.fee-row:not(.row-disabled) input[type="number"] { border-color: var(--border); background: #fff; }
 
 /* ========== TEMPLATE DROPDOWN ========== */
 .tmpl-dropdown { position: relative; display: inline-block; }

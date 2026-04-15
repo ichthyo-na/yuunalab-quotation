@@ -945,9 +945,14 @@ function doExportPDF() {
     // Rename subtotal label when days=1
     if (sd <= 1 && t.includes('per day')) { lbl.textContent = 'SubTotal/小计'; }
   });
-  // 4. Auto-resize textareas to fit content
+  // 4. Replace textareas with divs for PDF (textarea won't wrap in html2canvas)
   document.querySelectorAll('.terms-textarea').forEach(ta => {
-    ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px';
+    const div = document.createElement('div');
+    div.className = 'terms-textarea-pdf';
+    div.style.cssText = 'white-space:pre-wrap;word-wrap:break-word;font-size:0.82rem;line-height:1.6;padding:2px 0;';
+    div.textContent = ta.value;
+    ta.style.display = 'none';
+    ta.parentNode.insertBefore(div, ta.nextSibling);
   });
   // 5. Hide empty list rows
   document.querySelectorAll('.list-table tbody tr').forEach(tr => {
@@ -965,6 +970,8 @@ function doExportPDF() {
 
   html2pdf().set(opt).from(element).save().then(() => {
     body.classList.remove('pdf-rendering');
+    document.querySelectorAll('.terms-textarea-pdf').forEach(div => div.remove());
+    document.querySelectorAll('.terms-textarea').forEach(ta => { ta.style.display = ''; });
     document.querySelectorAll('.pdf-hide').forEach(el => el.classList.remove('pdf-hide'));
     document.querySelectorAll('.pdf-export-show').forEach(el => el.classList.remove('pdf-export-show'));
     const at = document.querySelector('.tab.active');

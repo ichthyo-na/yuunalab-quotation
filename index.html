@@ -207,8 +207,6 @@ input, select, textarea, button { font-family: inherit; font-size: inherit; }
 .pdf-rendering .row-disabled { display: none; }
 .pdf-rendering .fee-table tr.subtotal-row:not(.pdf-hide) { display: table-row !important; }
 .pdf-rendering .fee-table tr.fee-row { page-break-inside: avoid; }
-.pdf-rendering .fee-table tr.section-header { page-break-after: avoid; }
-.pdf-rendering .fee-table tr.subtotal-row { page-break-before: avoid; }
 .pdf-rendering .pdf-header { text-align: center; padding: 6px 0 10px; border-bottom: 1px solid var(--accent); margin-bottom: 12px; }
 .pdf-rendering .pdf-header img[src=""], .pdf-rendering .pdf-header img:not([src]), .pdf-rendering .pdf-header img[style*="display:none"] { display: none !important; height: 0 !important; margin: 0 !important; padding: 0 !important; }
 .pdf-rendering .pdf-header h1 { font-size: 1.3rem; color: var(--accent); letter-spacing: 1px; margin: 0; }
@@ -966,7 +964,7 @@ function doExportPDF() {
   const date = document.getElementById('info-date').value || new Date().getFullYear();
   const opt = { margin: [6,6,6,6], filename: `${brandName}_${clientName}_${date}.pdf`,
     image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true, letterRendering: true, scrollY: 0 },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }, pagebreak: { mode: ['avoid-all','css','legacy'] } };
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }, pagebreak: { mode: ['css'] } };
 
   html2pdf().set(opt).from(element).save().then(() => {
     body.classList.remove('pdf-rendering');

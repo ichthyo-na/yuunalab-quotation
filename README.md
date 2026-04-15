@@ -63,6 +63,11 @@ Click the **Settings** gear icon to: / 点击 **设置** 齿轮图标可以：
 - [ ] Support OpenAI-compatible & Anthropic APIs / 支持 OpenAI 兼容接口及 Anthropic API
 - [ ] Smart role & template recommendations / 智能角色和模板推荐
 
+### Next Up / 近期优化
+
+- [ ] JSON export/import button — easily transfer quotation data between devices / JSON 导出/导入按钮 —— 方便在不同电脑间传输报价数据
+- [ ] Package price field with override — enter a flat rate to override per-day calculation / 打包价格字段 —— 填入即覆盖按天计算的结果
+
 ### Future / 未来规划
 
 - [ ] Multi-currency support / 多币种支持

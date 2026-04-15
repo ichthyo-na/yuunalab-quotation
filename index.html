@@ -216,7 +216,7 @@ input, select, textarea, button { font-family: inherit; font-size: inherit; }
 .pdf-rendering .summary-input { border: none !important; background: none !important; text-align: right; }
 .pdf-rendering .terms-section { page-break-inside: avoid; }
 .pdf-rendering .terms-textarea:empty { display: none; }
-.pdf-rendering .terms-textarea { min-height: auto !important; height: auto !important; overflow: hidden; }
+.pdf-rendering .terms-textarea { min-height: auto !important; height: auto !important; overflow: hidden; white-space: pre-wrap; word-wrap: break-word; word-break: break-all; }
 .pdf-rendering .sig-box { min-height: auto; }
 .pdf-rendering .pdf-hide { display: none !important; }
 
@@ -336,7 +336,7 @@ input, select, textarea, button { font-family: inherit; font-size: inherit; }
       <div class="summary-row"><span class="summary-label">Round Down/&#25273;&#38646;</span><input type="number" class="summary-input" id="roundDown" value="0" min="0" step="0.01" oninput="recalcAll()"></div>
       <div class="summary-row"><span class="summary-label">Package Price/&#25171;&#21253;&#20215;</span><input type="number" class="summary-input" id="packagePrice" value="" min="0" step="0.01" oninput="recalcAll()" placeholder="&#31354;=&#19981;&#21551;&#29992;"></div>
       <div class="summary-row"><span class="summary-label">Tax Rate/&#31246;&#29575;</span><span style="display:flex;align-items:center;gap:4px;"><input type="number" class="summary-input" id="taxRate" value="1" min="0" max="100" step="0.01" oninput="recalcAll()" style="width:80px"><span>%</span></span></div>
-      <div class="summary-row"><span class="summary-label">Tax/&#31246;&#39069;</span><span class="summary-value" id="summaryTax">&#165;0.00</span></div>
+      <div class="summary-row"><span class="summary-label">Tax/&#31246;&#39069; <span id="taxRateDisplay" style="font-weight:400;"></span></span><span class="summary-value" id="summaryTax">&#165;0.00</span></div>
       <div class="summary-row total"><span>Total Charges/&#24635;&#36153;&#29992;</span><span id="summaryTotal">&#165;0.00</span></div>
     </div>
 
@@ -788,6 +788,7 @@ function recalcAll() {
   const taxRate = parseFloat(document.getElementById('taxRate').value) || 0;
   const tax = finalBase * taxRate / 100;
   document.getElementById('summaryTax').textContent = formatMoney(tax);
+  document.getElementById('taxRateDisplay').textContent = taxRate ? `(${taxRate}%)` : '';
   document.getElementById('summaryTotal').textContent = formatMoney(finalBase + tax);
 }
 

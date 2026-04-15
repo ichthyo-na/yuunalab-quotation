@@ -57,16 +57,27 @@ Click the **Settings** gear icon to: / 点击 **设置** 齿轮图标可以：
 
 ## Roadmap / 开发计划
 
-### Phase 2: AI Integration / 第二阶段：AI 接入
-
-- [ ] AI-powered quotation suggestions — auto-generate fee estimates based on project description / AI 智能报价建议 —— 根据项目描述自动生成费用预估
-- [ ] Support OpenAI-compatible & Anthropic APIs / 支持 OpenAI 兼容接口及 Anthropic API
-- [ ] Smart role & template recommendations / 智能角色和模板推荐
-
 ### Next Up / 近期优化
 
 - [ ] Package price field with override — enter a flat rate to override per-day calculation / 打包价格字段 —— 填入即覆盖按天计算的结果
 - [ ] JSON export/import button — easily transfer quotation data between devices / JSON 导出/导入按钮 —— 方便在不同电脑间传输报价数据
+
+### Phase 2: AI Integration / 第二阶段：AI 接入
+
+- [ ] AI-powered quotation suggestions — auto-generate fee estimates based on project description / AI 智能报价建议 —— 根据项目描述自动生成费用预估
+- [ ] AI-powered supplier quote import — scan PDF/image quotes from vendors and auto-fill into equipment list / AI 识别供应商报价 —— 扫描设备商的 PDF/图片报价单，自动导入设备清单
+- [ ] Support OpenAI-compatible & Anthropic APIs / 支持 OpenAI 兼容接口及 Anthropic API
+- [ ] Smart role & template recommendations / 智能角色和模板推荐
+
+### Phase 3: Local Equipment Database / 第三阶段：本地设备数据库
+
+- [ ] Built-in equipment library with IndexedDB — store your gear catalog locally in the browser, no server needed / 基于 IndexedDB 的本地设备库 —— 浏览器内置存储，无需服务器
+- [ ] Auto-complete equipment names & prices — type a device name and get suggestions with rental prices / 设备名称和价格自动补全 —— 输入设备名自动联想并填入租赁价格
+- [ ] Editable after auto-fill — prices from the database are suggestions, always adjustable per project / 自动填入后仍可修改 —— 数据库价格仅作参考，每个项目可单独调整
+
+> This project is designed to stay lightweight — a single HTML file, pure frontend, no backend required. For multi-user or team-shared databases, you're welcome to fork and extend!
+>
+> 本项目定位轻量化 —— 单文件、纯前端、无需后端。如需多人共享数据库，欢迎 fork 后自行扩展！
 
 ### Future / 未来规划
 

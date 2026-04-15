@@ -70,6 +70,7 @@ Click the **Settings** gear icon to: / 点击 **设置** 齿轮图标可以：
 
 ### Future / 未来规划
 
+- [ ] Mobile & tablet responsive layout / 手机和平板端适配
 - [ ] Multi-currency support / 多币种支持
 - [ ] Client management / 客户管理
 - [ ] Quotation history & analytics / 报价历史与数据分析

@@ -80,6 +80,6 @@ Click the **Settings** gear icon to: / 点击 **设置** 齿轮图标可以：
 
 ## Author / 作者
 
-Made with care by [YUUNALAB+](https://github.com/ichthyo-na)
+Made by **Yuuna Wang** — [GitHub](https://github.com/ichthyo-na) · [Xiaohongshu/小红书](https://xhslink.com/m/2SfBwkrah8m)
 
-用心制作 by [YUUNALAB+](https://github.com/ichthyo-na)
+由 **Yuuna Wang** 制作 — 欢迎关注小红书交流！
